@@ -14,7 +14,7 @@ typedef void(^RRRAlertViewBlock)(RRRAlertView *alertView ,NSInteger index);
 
 @property (nonatomic, copy)  RRRAlertViewBlock indexBlock;
 
-- (instancetype)initWithTitle:( NSString *)title message:( NSString *)message delegate:( id )delegate cancelButtonTitle:( NSString *)cancelButtonTitle otherButtonTitles:( NSString *)otherButtonTitles, ...;
+- (instancetype)initWithTitle:( NSString *)title message:( NSString *)message cancelButtonTitle:( NSString *)cancelButtonTitle otherButtonTitles:( NSString *)otherButtonTitles, ...;
 
 @end
 

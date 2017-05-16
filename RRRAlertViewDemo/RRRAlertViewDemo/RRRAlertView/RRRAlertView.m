@@ -34,42 +34,86 @@ enum tag {
 
 @implementation RRRAlertView
 
-- (instancetype)initWithTitle:( NSString *)title message:( NSString *)message delegate:( id )delegate cancelButtonTitle:( NSString *)cancelButtonTitle otherButtonTitles:( NSString *)otherButtonTitles, ...
+/**
+ title
+ message
+ 1. 取消 确定
+ 2. 取消
+ 3. 取消 确定 确定 确定。。。
+ 4.     确定
+ 5.     确定 确定 确定。。。
+ */
+- (instancetype)initWithTitle:( NSString *)title message:( NSString *)message cancelButtonTitle:( NSString *)cancelButtonTitle otherButtonTitles:( NSString *)otherButtonTitles, ...
 {
     self = [super init];
     if (self) {
         self.backgroundColor = [UIColor whiteColor];
-        
         _buttonIndex = 0;
         _title = title;
         _message = message;
         _cancelButtonTitle = cancelButtonTitle;
-        _otherButtonTitles = [NSMutableArray array];
         
+        if (otherButtonTitles.length > 0) {
+            _otherButtonTitles = [NSMutableArray array];
+            
+            NSString *eachItem = otherButtonTitles;
+            va_list argumentList ;
+            va_start(argumentList, otherButtonTitles);
+            do {
+                if (eachItem) {
+                    [_otherButtonTitles addObject:eachItem];
+                }
+            } while ((eachItem = va_arg(argumentList, NSString *)));
+            va_end(argumentList);
+        }
         
-        
-        
-        NSString *eachItem = otherButtonTitles;
-        va_list argumentList ;
-        va_start(argumentList, otherButtonTitles);
-        do {
-            if (eachItem) {
-                [_otherButtonTitles addObject:eachItem];
-            }
-        } while ((eachItem = va_arg(argumentList, NSString *)));
-        va_end(argumentList);
         
         [self initWindow];
     }
     return self;
 }
 
+#pragma mark - event response
+
+- (void)cancelButtonAction
+{
+    [_maskView removeFromSuperview];
+    [self removeFromSuperview];
+    
+    _buttonIndex = 0;
+    
+    if (self.indexBlock) {
+        // 传参
+        self.indexBlock(self,_buttonIndex);
+        
+    }
+    
+}
+
+
+- (void)otherButtonAction:(UIButton *)button
+{
+    [_maskView removeFromSuperview];
+    [self removeFromSuperview];
+    
+    // 有取消
+    if (_cancelButtonTitle.length > 0) {
+        _buttonIndex = button.tag - beginTag + 1;
+    } else {
+        _buttonIndex = button.tag - beginTag;
+    }
+    
+    
+    if (self.indexBlock) {
+        // 传参
+        self.indexBlock(self,_buttonIndex);
+    }
+}
+
 // 初始化
 - (void)initWindow
 {
     self.layer.cornerRadius = 10;
-    
-    
     UIWindow *window = [UIApplication sharedApplication].delegate.window;
    
     
@@ -79,8 +123,6 @@ enum tag {
     [window addSubview:_maskView];
     [_maskView addSubview:self];
 
-    
-    
     
     CGFloat spaceX = 0.0;
     CGFloat spaceY = 0.0;
@@ -132,64 +174,60 @@ enum tag {
     height += 1;
     spaceY += 1;
     
-    // 取消
-    if (_cancelButtonTitle.length > 0  && _otherButtonTitles.count <= 1) {
-        UIButton *cancelButton = [[UIButton alloc] initWithFrame:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2)/2, btnHeight)];
-        [self addSubview:cancelButton];
+    
+    // 取消 确定
+    if (_cancelButtonTitle.length > 0 && _otherButtonTitles.count == 1) {
+        
+        // 取消 ===============================
+        CGRect fram = CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2)/2, btnHeight);
+        [self addCancelButtonWithFram:fram];
        
-        
-        
-        [cancelButton setTitle:_cancelButtonTitle forState:UIControlStateNormal];
-        [cancelButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
-        cancelButton.titleLabel.textAlignment = NSTextAlignmentCenter;
-        
-        cancelButton.tag = beginTag;
-        
-        
-        // 事件
-        [cancelButton addTarget:self action:@selector(cancelButtonAction) forControlEvents:UIControlEventTouchUpInside];
-        
-        height += btnHeight;
-        spaceX += CGRectGetWidth(cancelButton.frame);
-        
-        
-        
+        spaceX += fram.size.width;
         
         // 竖线
-        if (_otherButtonTitles.count == 1) {
-            
-            UIView *line = [[UIView alloc] init];
-            line.backgroundColor = [UIColor lightGrayColor];
-            [self addSubview:line];
-            line.frame = CGRectMake((SCREEN_WIDTH - margin*2)/2,spaceY, lineMargin, btnHeight);
-            
-            spaceX += 1;
-        }
+        UIView *line = [[UIView alloc] init];
+        line.backgroundColor = [UIColor lightGrayColor];
+        [self addSubview:line];
+        line.frame = CGRectMake((SCREEN_WIDTH - margin*2)/2,spaceY, lineMargin, btnHeight);
         
+        spaceX += 1;
         
+        // 确定 ===============================
+        [self addOtherButtonWithTag:beginTag title:_otherButtonTitles[0] fram:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2)/2, btnHeight)];
+        
+        height += btnHeight;
+
     }
     
-    // 确定
-    if (_otherButtonTitles.count == 1) {
-        UIButton *otherButton = [[UIButton alloc] initWithFrame:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2)/2, btnHeight)];
-        [self addSubview:otherButton];
+    
+    // 取消
+    //     确定
+    if (_cancelButtonTitle.length == 0 || _otherButtonTitles.count == 0) {
         
-        otherButton.tag = beginTag;
-        
-        [otherButton setTitle:_otherButtonTitles[0] forState:UIControlStateNormal];
-        [otherButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
-        otherButton.titleLabel.textAlignment = NSTextAlignmentCenter;
-        // 事件
-        [otherButton addTarget:self action:@selector(otherButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+        CGRect fram = CGRectMake(0, spaceY,  (SCREEN_WIDTH - margin*2), btnHeight);
 
-    } else if (_otherButtonTitles.count > 1) {
+        // 确定 ===============================
+        if (_cancelButtonTitle.length == 0) {
+            [self addOtherButtonWithTag:beginTag title:_otherButtonTitles[0] fram:fram];
+        }
         
-        //
+        // 取消 ===============================
+        if (_otherButtonTitles.count == 0) {
+            [self addCancelButtonWithFram:fram];
+        }
+        
+        height += btnHeight;
+    }
+    
+    
+    // 取消 确定 确定 确定。。。
+    if (_cancelButtonTitle.length > 0 && _otherButtonTitles.count > 1) {
+        
+        // 确定 ===============================
         spaceX = 0;
         
         for (int i = 0; i < _otherButtonTitles.count; i ++) {
             if (i > 0) {
-                
                 spaceY += btnHeight;
                 // 横线
                 UIView *line = [[UIView alloc] init];
@@ -199,52 +237,40 @@ enum tag {
                 
             }
             height += btnHeight;
-
             
-            UIButton *otherButton = [[UIButton alloc] initWithFrame:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2), btnHeight)];
-            [self addSubview:otherButton];
-            otherButton.tag = beginTag + i;
-            
-            [otherButton setTitle:_otherButtonTitles[i] forState:UIControlStateNormal];
-            [otherButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
-            otherButton.titleLabel.textAlignment = NSTextAlignmentCenter;
-            
-            // 事件
-            [otherButton addTarget:self action:@selector(otherButtonAction:) forControlEvents:UIControlEventTouchUpInside];
-
-       
-            
+            [self addOtherButtonWithTag:beginTag + i title:_otherButtonTitles[i] fram:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2), btnHeight)];
         }
-       
-        
         
         spaceY += btnHeight;
         
-        
         // 横线
-        UIView *line = [[UIView alloc] init];
-        line.backgroundColor = [UIColor lightGrayColor];
-        [self addSubview:line];
-        line.frame = CGRectMake(0,spaceY, SCREEN_WIDTH - margin*2, lineMargin);
+        [self addHorizontalLineWithFram:CGRectMake(0,spaceY, SCREEN_WIDTH - margin*2, lineMargin)];
         
-        
-        UIButton *cancelButton = [[UIButton alloc] initWithFrame:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2), btnHeight)];
-        [self addSubview:cancelButton];
-        cancelButton.tag = beginTag;
+        // 取消 ===============================
+        [self addCancelButtonWithFram:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2), btnHeight)];
 
-        [cancelButton setTitle:_cancelButtonTitle forState:UIControlStateNormal];
-        [cancelButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
-        cancelButton.titleLabel.textAlignment = NSTextAlignmentCenter;
-        
-        // 事件
-        [cancelButton addTarget:self action:@selector(cancelButtonAction) forControlEvents:UIControlEventTouchUpInside];
-        
-        
         height += btnHeight;
-        
     }
+   
     
-    
+    // 确定 确定 确定。。。
+    if (_cancelButtonTitle.length == 0 && _otherButtonTitles.count > 1) {
+        // 确定 ===============================
+        spaceX = 0;
+        
+        for (int i = 0; i < _otherButtonTitles.count; i ++) {
+            if (i > 0) {
+                spaceY += btnHeight;
+                // 横线
+                [self addHorizontalLineWithFram:CGRectMake(0,spaceY, SCREEN_WIDTH - margin*2, lineMargin)];
+            }
+            height += btnHeight;
+            
+            [self addOtherButtonWithTag:beginTag + i title:_otherButtonTitles[i] fram:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2), btnHeight)];
+        }
+        
+        height -= btnHeight;
+    }
     
     
     // self
@@ -252,38 +278,36 @@ enum tag {
     self.center = _maskView.center;
 }
 
-- (void)cancelButtonAction
+#pragma mark - private methods
+- (void)addCancelButtonWithFram:(CGRect)fram
 {
-    [_maskView removeFromSuperview];
-    [self removeFromSuperview];
-
-    _buttonIndex = 0;
-    
-    if (self.indexBlock) {
-        // 传参
-        self.indexBlock(self,_buttonIndex);
-       
-    }
-    
+    // 取消 ===============================
+    UIButton *cancelButton = [[UIButton alloc] initWithFrame:fram];
+    [cancelButton setTitle:_cancelButtonTitle forState:UIControlStateNormal];
+    [cancelButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+    cancelButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+    cancelButton.tag = beginTag;
+    [cancelButton addTarget:self action:@selector(cancelButtonAction) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:cancelButton];
 }
 
-
-- (void)otherButtonAction:(UIButton *)button
+- (void)addOtherButtonWithTag:(NSInteger )tag title:(NSString *)title fram:(CGRect)fram
 {
-    [_maskView removeFromSuperview];
-    [self removeFromSuperview];
+    // 确定 ===============================
+    UIButton *otherButton = [[UIButton alloc] initWithFrame:fram];
+    otherButton.tag = tag;
+    [otherButton setTitle:title forState:UIControlStateNormal];
+    [otherButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+    otherButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+    [otherButton addTarget:self action:@selector(otherButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:otherButton];
+}
 
-    // 有取消
-    if (_cancelButtonTitle.length > 0) {
-        _buttonIndex = button.tag - beginTag + 1;
-    } else {
-        _buttonIndex = button.tag - beginTag;
-    }
-    
-    
-    if (self.indexBlock) {
-        // 传参
-        self.indexBlock(self,_buttonIndex);
-    }
+- (void)addHorizontalLineWithFram:(CGRect)fram
+{
+    // 横线
+    UIView *line = [[UIView alloc] initWithFrame:fram];
+    line.backgroundColor = [UIColor lightGrayColor];
+    [self addSubview:line];
 }
 @end
