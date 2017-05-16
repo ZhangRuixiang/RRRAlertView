@@ -4,7 +4,7 @@
 这是一个自定义的alertView，功能和UIAlertView相似，你可以随意修改
 直接上图：
 <img src="https://github.com/ZhangRuixiang/RRRAlertView/raw/master/shotPic1.png" width="320">
-<img src="https://github.com/ZhangRuixiang/RRRAlertView/raw/master/shotPic3.png" width="320"> 
+<img src="https://github.com/ZhangRuixiang/RRRAlertView/raw/master/shotPic2.png" width="320"> 
 
 # 使用
 ```
