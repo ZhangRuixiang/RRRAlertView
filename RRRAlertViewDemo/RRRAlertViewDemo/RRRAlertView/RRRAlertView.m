@@ -31,17 +31,15 @@ enum tag {
 
 @end
 
-
 @implementation RRRAlertView
 
 /**
  title
  message
  1. 取消 确定
- 2. 取消
+ 2. 取消/确定
  3. 取消 确定 确定 确定。。。
- 4.     确定
- 5.     确定 确定 确定。。。
+ 4.     确定 确定 确定。。。
  */
 - (instancetype)initWithTitle:( NSString *)title message:( NSString *)message cancelButtonTitle:( NSString *)cancelButtonTitle otherButtonTitles:( NSString *)otherButtonTitles, ...
 {
@@ -74,12 +72,8 @@ enum tag {
 }
 
 #pragma mark - event response
-
 - (void)cancelButtonAction
 {
-    [_maskView removeFromSuperview];
-    [self removeFromSuperview];
-    
     _buttonIndex = 0;
     
     if (self.indexBlock) {
@@ -88,14 +82,12 @@ enum tag {
         
     }
     
+    [_maskView removeFromSuperview];
+    [self removeFromSuperview];
 }
-
 
 - (void)otherButtonAction:(UIButton *)button
 {
-    [_maskView removeFromSuperview];
-    [self removeFromSuperview];
-    
     // 有取消
     if (_cancelButtonTitle.length > 0) {
         _buttonIndex = button.tag - beginTag + 1;
@@ -108,6 +100,9 @@ enum tag {
         // 传参
         self.indexBlock(self,_buttonIndex);
     }
+    
+    [_maskView removeFromSuperview];
+    [self removeFromSuperview];
 }
 
 // 初始化
@@ -166,10 +161,7 @@ enum tag {
     
     
     // 横线
-    UIView *line = [[UIView alloc] init];
-    line.backgroundColor = [UIColor lightGrayColor];
-    [self addSubview:line];
-    line.frame = CGRectMake(0,spaceY, SCREEN_WIDTH - margin*2, lineMargin);
+    [self addHorizontalLineWithFram:CGRectMake(0,spaceY, SCREEN_WIDTH - margin*2, lineMargin)];
     
     height += 1;
     spaceY += 1;
@@ -200,8 +192,7 @@ enum tag {
     }
     
     
-    // 取消
-    //     确定
+    // 取消/确定
     if (_cancelButtonTitle.length == 0 || _otherButtonTitles.count == 0) {
         
         CGRect fram = CGRectMake(0, spaceY,  (SCREEN_WIDTH - margin*2), btnHeight);
@@ -230,10 +221,7 @@ enum tag {
             if (i > 0) {
                 spaceY += btnHeight;
                 // 横线
-                UIView *line = [[UIView alloc] init];
-                line.backgroundColor = [UIColor lightGrayColor];
-                [self addSubview:line];
-                line.frame = CGRectMake(0,spaceY, SCREEN_WIDTH - margin*2, lineMargin);
+                [self addHorizontalLineWithFram:CGRectMake(0,spaceY, SCREEN_WIDTH - margin*2, lineMargin)];
                 
             }
             height += btnHeight;
