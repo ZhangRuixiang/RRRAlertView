@@ -4,7 +4,7 @@
 直接上图：
 <img src="https://github.com/ZhangRuixiang/RRRAlertView/raw/master/shotPic1.png" width="320">
 <img src="https://github.com/ZhangRuixiang/RRRAlertView/raw/master/shotPic2.png" width="320"> 
-![弱网环境下的新旧收件箱对比](https://cdn-images-1.medium.com/max/800/1*fZpQ95jk81Ae7tqpkXNIwA.gif)
+![](https://cdn-images-1.medium.com/max/800/1*fZpQ95jk81Ae7tqpkXNIwA.gif)
 
 ### 使用
 
