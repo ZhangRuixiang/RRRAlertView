@@ -13,6 +13,12 @@
 typedef void(^RRRAlertViewBlock)(RRRAlertView *alertView ,NSInteger index);
 
 @property (nonatomic, copy)  RRRAlertViewBlock indexBlock;
+@property (nonatomic, assign) NSInteger titleFont;
+@property (nonatomic, strong) UIColor *titleColor;
+@property (nonatomic, assign) NSInteger messageFont;
+@property (nonatomic, strong) UIColor *messageColor;
+
+
 
 - (instancetype)initWithTitle:( NSString *)title message:( NSString *)message cancelButtonTitle:( NSString *)cancelButtonTitle otherButtonTitles:( NSString *)otherButtonTitles, ...;
 
