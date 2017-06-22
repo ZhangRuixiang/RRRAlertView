@@ -128,6 +128,8 @@ enum tag {
 
     
     CGFloat spaceX = 0.0;
+    spaceX += controlsMargin;
+
     CGFloat spaceY = 0.0;
     spaceY += controlsMargin;
 
@@ -162,12 +164,13 @@ enum tag {
         messageLabel.textColor = _messageColor;
         messageLabel.text = _message;
         
-        CGSize size = [messageLabel boundingRectWithSize:CGSizeMake(SCREEN_WIDTH - margin*2, MAXFLOAT)];
+        CGSize size = [messageLabel boundingRectWithSize:CGSizeMake(SCREEN_WIDTH - margin*2 - controlsMargin*2, MAXFLOAT)];
         messageLabel.frame = CGRectMake(spaceX, spaceY, size.width, size.height);
         messageLabel.textAlignment = NSTextAlignmentCenter;
         messageLabel.numberOfLines = 0;
-        messageLabel.center = CGPointMake((SCREEN_WIDTH - margin*2)/2.0, messageLabel.center.y);
+        messageLabel.center = CGPointMake((SCREEN_WIDTH - margin*2 - controlsMargin*2)/2.0, messageLabel.center.y);
         
+        spaceX -= controlsMargin;
         spaceY += CGRectGetHeight(messageLabel.frame);
         spaceY += controlsMargin;
         height += size.height;
@@ -176,7 +179,7 @@ enum tag {
     
     
     // 横线
-    [self addHorizontalLineWithFram:CGRectMake(0,spaceY, SCREEN_WIDTH - margin*2, lineMargin)];
+    [self addHorizontalLineWithframe:CGRectMake(0,spaceY, SCREEN_WIDTH - margin*2, lineMargin)];
     
     height += 1;
     spaceY += 1;
@@ -186,10 +189,10 @@ enum tag {
     if (_cancelButtonTitle.length > 0 && _otherButtonTitles.count == 1) {
         
         // 取消 ===============================
-        CGRect fram = CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2)/2, btnHeight);
-        [self addCancelButtonWithFram:fram];
+        CGRect frame = CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2)/2, btnHeight);
+        [self addCancelButtonWithFrame:frame];
        
-        spaceX += fram.size.width;
+        spaceX += frame.size.width;
         
         // 竖线
         UIView *line = [[UIView alloc] init];
@@ -200,7 +203,7 @@ enum tag {
         spaceX += 1;
         
         // 确定 ===============================
-        [self addOtherButtonWithTag:beginTag title:_otherButtonTitles[0] fram:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2)/2, btnHeight)];
+        [self addOtherButtonWithTag:beginTag title:_otherButtonTitles[0] frame:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2)/2, btnHeight)];
         
         height += btnHeight;
 
@@ -210,16 +213,16 @@ enum tag {
     // 取消/确定
     if (_cancelButtonTitle.length == 0 || _otherButtonTitles.count == 0) {
         
-        CGRect fram = CGRectMake(0, spaceY,  (SCREEN_WIDTH - margin*2), btnHeight);
+        CGRect frame = CGRectMake(0, spaceY,  (SCREEN_WIDTH - margin*2), btnHeight);
 
         // 确定 ===============================
         if (_cancelButtonTitle.length == 0) {
-            [self addOtherButtonWithTag:beginTag title:_otherButtonTitles[0] fram:fram];
+            [self addOtherButtonWithTag:beginTag title:_otherButtonTitles[0] frame:frame];
         }
         
         // 取消 ===============================
         if (_otherButtonTitles.count == 0) {
-            [self addCancelButtonWithFram:fram];
+            [self addCancelButtonWithFrame:frame];
         }
         
         height += btnHeight;
@@ -236,21 +239,21 @@ enum tag {
             if (i > 0) {
                 spaceY += btnHeight;
                 // 横线
-                [self addHorizontalLineWithFram:CGRectMake(0,spaceY, SCREEN_WIDTH - margin*2, lineMargin)];
+                [self addHorizontalLineWithframe:CGRectMake(0,spaceY, SCREEN_WIDTH - margin*2, lineMargin)];
                 
             }
             height += btnHeight;
             
-            [self addOtherButtonWithTag:beginTag + i title:_otherButtonTitles[i] fram:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2), btnHeight)];
+            [self addOtherButtonWithTag:beginTag + i title:_otherButtonTitles[i] frame:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2), btnHeight)];
         }
         
         spaceY += btnHeight;
         
         // 横线
-        [self addHorizontalLineWithFram:CGRectMake(0,spaceY, SCREEN_WIDTH - margin*2, lineMargin)];
+        [self addHorizontalLineWithframe:CGRectMake(0,spaceY, SCREEN_WIDTH - margin*2, lineMargin)];
         
         // 取消 ===============================
-        [self addCancelButtonWithFram:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2), btnHeight)];
+        [self addCancelButtonWithFrame:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2), btnHeight)];
 
         height += btnHeight;
     }
@@ -265,11 +268,11 @@ enum tag {
             if (i > 0) {
                 spaceY += btnHeight;
                 // 横线
-                [self addHorizontalLineWithFram:CGRectMake(0,spaceY, SCREEN_WIDTH - margin*2, lineMargin)];
+                [self addHorizontalLineWithframe:CGRectMake(0,spaceY, SCREEN_WIDTH - margin*2, lineMargin)];
             }
             height += btnHeight;
             
-            [self addOtherButtonWithTag:beginTag + i title:_otherButtonTitles[i] fram:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2), btnHeight)];
+            [self addOtherButtonWithTag:beginTag + i title:_otherButtonTitles[i] frame:CGRectMake(spaceX, spaceY,  (SCREEN_WIDTH - margin*2), btnHeight)];
         }
         
         height -= btnHeight;
@@ -282,10 +285,10 @@ enum tag {
 }
 
 #pragma mark - private methods
-- (void)addCancelButtonWithFram:(CGRect)fram
+- (void)addCancelButtonWithFrame:(CGRect)frame
 {
     // 取消 ===============================
-    UIButton *cancelButton = [[UIButton alloc] initWithFrame:fram];
+    UIButton *cancelButton = [[UIButton alloc] initWithFrame:frame];
     [cancelButton setTitle:_cancelButtonTitle forState:UIControlStateNormal];
     [cancelButton setTitleColor:[self hexStringToColor:@"#0062FD"] forState:UIControlStateNormal];
     cancelButton.titleLabel.textAlignment = NSTextAlignmentCenter;
@@ -294,10 +297,10 @@ enum tag {
     [self addSubview:cancelButton];
 }
 
-- (void)addOtherButtonWithTag:(NSInteger )tag title:(NSString *)title fram:(CGRect)fram
+- (void)addOtherButtonWithTag:(NSInteger )tag title:(NSString *)title frame:(CGRect)frame
 {
     // 确定 ===============================
-    UIButton *otherButton = [[UIButton alloc] initWithFrame:fram];
+    UIButton *otherButton = [[UIButton alloc] initWithFrame:frame];
     otherButton.tag = tag;
     [otherButton setTitle:title forState:UIControlStateNormal];
     [otherButton setTitleColor:[self hexStringToColor:@"#FE3A35"] forState:UIControlStateNormal];
@@ -306,10 +309,10 @@ enum tag {
     [self addSubview:otherButton];
 }
 
-- (void)addHorizontalLineWithFram:(CGRect)fram
+- (void)addHorizontalLineWithframe:(CGRect)frame
 {
     // 横线
-    UIView *line = [[UIView alloc] initWithFrame:fram];
+    UIView *line = [[UIView alloc] initWithFrame:frame];
     line.backgroundColor = [UIColor lightGrayColor];
     [self addSubview:line];
 }
